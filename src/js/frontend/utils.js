@@ -1,5 +1,5 @@
-/* global base64 */
-/* exported preformatGetAssertReq, publicKeyCredentialToJSON, preformatMakeCredReq */
+
+import { base64 } from "../backend/backend.js";
 
 /**
  * Converts PublicKeyCredential into serialised JSON
@@ -48,16 +48,4 @@ let preformatMakeCredReq = (makeCredReq) => {
 	return makeCredReq;
 };
 
-/**
- * Decodes arrayBuffer required fields.
- */
-let preformatGetAssertReq = (getAssert) => {
-	getAssert.challenge = base64.toArrayBuffer(getAssert.challenge,true);
-    
-	// Allow any credential, this will be handled later
-	for(let allowCred of getAssert.allowCredentials) {
-		allowCred.id = base64.toArrayBuffer(allowCred.id,true);
-	}
-
-	return getAssert;
-};
+export {publicKeyCredentialToJSON, preformatMakeCredReq};

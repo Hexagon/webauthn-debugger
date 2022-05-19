@@ -1,6 +1,5 @@
 {
     "tasks": {
-        "start": "deno run --allow-read --allow-net --allow-env --allow-write ./app.ts",
-        "start:production": "deno run --no-check --allow-read --allow-net --allow-env --allow-write ./app.ts"
+        "start": "deno run --allow-read --allow-net ./app.ts"
     }
 }

@@ -1,0 +1,74 @@
+#mainContainer {
+    display: none;
+}
+#background {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    z-index: -1;
+}
+#content {
+    background: rgba(0,0,0,128);
+}
+.pubkey {
+    font-size: 1.0em;
+}
+table {
+    display: table;
+    border-collapse: collapse;
+    border-spacing: 0px;
+}
+td, th {
+    padding: 3px 3px;
+    margin: 0px 0px;
+}
+thead tr  {
+    background-color:#334455;
+    color:antiquewhite;
+}
+thead tr td {
+    padding-left: 1rem !important;
+}
+tbody tr  {
+    background-color:#667788;
+}
+tbody tr:first-child  {
+    background-color:#445566;
+    color:antiquewhite;
+}
+tbody tr:first-child td {
+    padding-left: 1rem;
+}
+pre>code {
+    display: block;
+    padding: 0.5rem 0.5rem;
+    white-space: pre;
+    border-radius: 0;
+    border: 0 none;
+}
+pre {
+    display: block;
+    font-family: monospace;
+    white-space: pre;
+    margin: 0em 0px;
+}
+#log-registration {
+    background-color: #DDEEFF;
+    border:1px solid #AABBCC;
+    padding:3px;
+    min-height: 300px;
+}
+
+#log-assertion {
+    background-color: #DDEEFF;
+    border:1px solid #AABBCC;
+    padding:3px;
+    
+    min-height: 300px;
+}
+
+textarea {
+    min-height: 15em;
+}

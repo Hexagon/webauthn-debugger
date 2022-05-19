@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" integrity="sha512-EZLkOqwILORob+p0BXZc+Vm3RgJBOe1Iq/0fiI7r/wJgzOFZMlsqTa29UEl6v6U6gsV4uIpsNZoV32YZqrCRCQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/json-formatter-js@2.3.4/dist/json-formatter.css">
+        <link rel="stylesheet" href="css/demo.css">
+    </head>
+    <body>
+        <!-- View when logged out -->
+            <div class="row">
+                <div class="column one-half column">
+                    <h3>WebAuthn Debugger</h3>
+                    <form>
+                        <div class="row">
+                          <div class="six columns">
+                            <label for="exampleEmailInput">Username</label>
+                            <input class="u-full-width"  type="text" placeholder="Enter username" id="username">
+                          </div>
+                        </div>
+                      </form>
+                </div>
+                <div class="one-half column ">
+                    <label for="exampleMessage">Options</label>
+                    <textarea class="u-full-width" id="config">
+{
+    "origin": "http://localhost:3000",
+    "rpiId": "localhost",
+    "rpName": "Webauthn Debugger"
+}
+                    </textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div id="log-registration-header" class="one-half column registration">
+                    <button class="button-primary" id="button-register">Start registration</button>
+                </div>               
+                <div id="log-assertion-header" class="one-half column assertion">
+                    <button class="button-primary" id="button-login">Start assertion (login)</button>
+                </div>
+            </div>
+            <div id="log" class="row">
+                <div id="log-registration" class="one-half column registration">
+                    <p>Press "Start registration to show log below ...</p>
+                </div>
+                <div id="log-assertion" class="one-half column assertion">
+                    <p>Press "Start attestation" to show log below ...</p>
+                </div>
+            </div>
+
+        <!-- Vanta net container -->
+        <div id="background"></div>
+
+        <!-- External dependencies -->
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@hexagon/base64@1/dist/base64.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/qr-creator/dist/qr-creator.min.js"></script>
+
+        <!-- Internals -->
+        <script src="js/view/view.js" type="module"></script>
+
+</body>
+</html>

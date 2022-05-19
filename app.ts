@@ -1,42 +1,15 @@
-import { opine, json, serveStatic, OpineSession, HTTPSOptions, HTTPOptions } from "./deps.ts";
-import { config } from "./config.ts";
-import defaultRoutes from "./routes/default.ts";
-import tokenRoutes from "./routes/token.ts";
-import webauthnRoutes from "./routes/webauthn.ts";
+import { opine, serveStatic, HTTPOptions } from "https://deno.land/x/opine@2.2.0/mod.ts"; 
 
 const app = opine();
 
-// Enable sessions
-new OpineSession(app);
-
-// Enable json body parser
-app.use(json());
-app.use(serveStatic("./public/static"));
-
-// Set up routes
-app.use("/", defaultRoutes);
-app.use("/token", tokenRoutes);
-app.use("/webauthn", webauthnRoutes);
-
-// Set up config
-let appConfig: HTTPSOptions | HTTPOptions;
+app.use(serveStatic("./src"));
 
 // "Development" HTTPS
-if (config.mode === "development") {
-	appConfig = {
-		port: parseInt(config.port, 10),
-		certFile: "./keys/cert.pem",
-		keyFile: "./keys/key.pem"
-	}
+const appConfig: HTTPOptions = {
+	port: 3000
+};
 
-// "Production" HTTP - (for use behind https proxy)
-} else {
-	appConfig = {
-		port: parseInt(config.port, 10)
-	};
-}
-
-// Start server
+// Start development server
 app.listen(appConfig,
-	() => console.log("server has started on https://localhost:"+config.port+" 🚀"),
+	() => console.log("server has started on http://localhost:3000 🚀"),
 );

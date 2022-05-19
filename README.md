@@ -4,6 +4,8 @@ This is a serverless webauthn debugger, which works by running the RP (backend) 
 
 Uses [fido2-lib](https://www.npmjs.com/package/fido2-lib) as RP "backend".
 
+Live at [56k.guru/webauthn-debugger](https://56k.guru/webauthn-debugger)
+
 The repository also includes a Deno development server, use by
 
 1. Install Deno

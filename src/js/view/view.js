@@ -1,6 +1,7 @@
-import { register, login } from "./../frontend/frontend.js";
+import { register, login } from "../frontend/frontend.js";
 import uuid from "https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/esm-browser/v4.js";
 import JSONFormatter from "https://cdn.jsdelivr.net/npm/json-formatter-js@2.3.4/dist/json-formatter.esm.js";
+import { functions } from "https://unpkg.com/fido2-lib@3.1.5/test/helpers/fido2-helpers.js?module";
 console.log(JSONFormatter);
 
 $("#button-register").click(async () => {
@@ -54,16 +55,17 @@ function unprotectKey(mayBeAKey) {
 }
 
 function base64ify(obj) {
+	let newObj = {};
 	for (var property in obj) {
-		if (obj.hasOwnProperty(property)) {
-			if (typeof obj[property] == "object") {
-				obj[property] = base64ify(obj[property]);
-			} else if (obj[property] instanceof Uint8Array || obj[property] instanceof ArrayBuffer) {
-				obj[property] = base64.fromArrayBuffer(obj[property]);
-			}
+		if (obj[property] instanceof Uint8Array || obj[property] instanceof ArrayBuffer) {
+			newObj[property] = base64.fromArrayBuffer(obj[property], true);
+		} else if (typeof obj[property] === "object") {
+			newObj[property] = base64ify(obj[property]);
+		} else {
+			newObj[property] = obj[property];
 		}
 	}
-	return obj;
+	return newObj || obj;
 }
 
 

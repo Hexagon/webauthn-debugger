@@ -19,17 +19,18 @@ class Fido2 {
 			rpName,
 			rpIcon: rpIcon,
 			challengeSize: 128,
-			attestation: "none",
-			cryptoParams: [-7, -257],
-			authenticatorAttachment: undefined, // ["platform", "cross-platform"]
-			authenticatorRequireResidentKey: false,
-			authenticatorUserVerification: "preferred"
+			attestation: getConfig.attestation,
+			cryptoParams: getConfig().cryptoParams,
+			authenticatorAttachment: getConfig().authenticatorAttachment, // ["platform", "cross-platform"]
+			authenticatorRequireResidentKey: getConfig().authenticatorRequireResidentKey,
+			authenticatorUserVerification: getConfig().authenticatorUserVerification
 		});
+		console.log("CP",getConfig().cryptoParams);
 	}
 
 	async registration(username, displayName, id) {
 		const registrationOptions = await this.f2l.attestationOptions();
-
+		
 		// make sure to add registrationOptions.user.id
 		registrationOptions.user = {
 			id: id,
@@ -66,13 +67,6 @@ class Fido2 {
 		return authnResult;
 	}
 }
-
-const f2l = new Fido2(
-    getConfig().rpId, 
-    getConfig().rpName, 
-    undefined, 
-    90 * 1000 // 90 seconds
-);
 
 // Clean username
 const username = { clean: function (username) {
@@ -130,6 +124,13 @@ const backendRegister = async (ctx) => {
 		"recoveryEmail": undefined
 	};
 
+	const f2l = new Fido2(
+		getConfig().rpId, 
+		getConfig().rpName, 
+		undefined, 
+		90 * 1000 // 90 seconds
+	);
+
 	let challengeMakeCred = await f2l.registration(usernameClean, name, id);
     
 	// Transfer challenge and username to session
@@ -160,6 +161,14 @@ const backendAdd = async (ctx) => {
 		name     = usernameClean,
 		id       = database.users[session.get("username")].id;
 
+		
+	const f2l = new Fido2(
+		getConfig().rpId, 
+		getConfig().rpName, 
+		undefined, 
+		90 * 1000 // 90 seconds
+	);
+
 	let challengeMakeCred = await f2l.registration(usernameClean, name, id);
     
 	// Transfer challenge to session
@@ -188,6 +197,14 @@ const backendLogin = async (ctx) => {
 			"message": `User ${usernameClean} does not exist!`
 		};
 	}
+
+	
+	const f2l = new Fido2(
+		getConfig().rpId, 
+		getConfig().rpName, 
+		undefined, 
+		90 * 1000 // 90 seconds
+	);
 
 	let assertionOptions = await f2l.login(usernameClean);
 
@@ -222,6 +239,14 @@ const backendResponse = async (webauthnResp) => {
 			"message": "Response missing one or more of id/rawId/response/type fields, or type is not public-key!"
 		};
 	}
+	
+	const f2l = new Fido2(
+		getConfig().rpId, 
+		getConfig().rpName, 
+		undefined, 
+		90 * 1000 // 90 seconds
+	);
+	
 	if(webauthnResp.response.attestationObject !== undefined) {
 		/* This is create cred */
 		const result = await f2l.attestation(webauthnResp, getConfig().origin, session.get("challenge"));

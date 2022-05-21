@@ -25,7 +25,6 @@ class Fido2 {
 			authenticatorRequireResidentKey: getConfig().authenticatorRequireResidentKey,
 			authenticatorUserVerification: getConfig().authenticatorUserVerification
 		});
-		console.log("CP",getConfig().cryptoParams);
 	}
 
 	async registration(username, displayName, id) {
@@ -219,7 +218,7 @@ const backendLogin = async (ctx) => {
 		allowCredentials.push({
 			type: authr.type,
 			id: authr.credId,
-			transports: ["usb", "nfc", "ble","internal"]
+			transports: authr.transports
 		});
 	}
 

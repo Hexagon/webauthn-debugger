@@ -76,8 +76,8 @@ function doLog(target, description, sender, receiver, senderJson, receiverJson) 
 	logEntryHTML += "<tbody><tr><td>"+sender+"</td><td>→</td><td>"+receiver+"</td></tr>";
 	logEntryHTML += "<tr><td><pre><code id=\"request-"+randomId+"\"></code></pre></td><td>→</td><td><pre><code id=\"response-"+randomId+"\"></code></pre></td></tr></tbody></table>";
 	$('#log-'+target).append(logEntryHTML);
-	$('#request-'+randomId).append(showJson(base64ify(unprotectKey(senderJson))));
-	$('#response-'+randomId).append(showJson(base64ify(unprotectKey(receiverJson))));
+	$('#request-'+randomId).append(showJson(base64ify(unprotectKey(functions.cloneObject(senderJson)))));
+	$('#response-'+randomId).append(showJson(base64ify(unprotectKey(functions.cloneObject(receiverJson)))));
 }
 
 export { showJson, doLog };

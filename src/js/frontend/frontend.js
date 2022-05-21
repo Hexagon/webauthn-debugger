@@ -28,8 +28,8 @@ async function register (username, additional) {
 	doLog("registration", "Request credentials from authenticator", "Browser", "Authenticator", publicKeyCredentialCreationOptions, credentialsCreateResponse);
 
 	// Step 3 - Run getTransports if it is supported
-	if (credentialsCreateResponse.getTransports) {
-		credentialsCreateResponse.transports = credentialsCreateResponse.getTransports();
+	if (credentialsCreateResponse.response && credentialsCreateResponse.response.getTransports) {
+		credentialsCreateResponse.transports = credentialsCreateResponse.response.getTransports();
 	}
 
 	// Step 4 - Pass response from credentials.create to "backend"

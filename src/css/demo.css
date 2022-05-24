@@ -1,3 +1,7 @@
+body, * {
+    font-size: 1.2rem;
+}
+
 #mainContainer {
     display: none;
 }
@@ -19,6 +23,7 @@ table {
     display: table;
     border-collapse: collapse;
     border-spacing: 0px;
+    width: 48vw;
 }
 td, th {
     padding: 3px 3px;
@@ -55,33 +60,34 @@ pre {
     margin: 0em 0px;
 }
 #log-registration {
-    background-color: #DDEEFF;
-    border:1px solid #AABBCC;
     padding:3px;
     min-height: 300px;
 }
 
 #log-assertion {
-    background-color: #DDEEFF;
-    border:1px solid #AABBCC;
     padding:3px;
-    
     min-height: 300px;
 }
 
+code {
+    background: none !important;
+}
 textarea {
     min-height: 15em;
 }
 
 .json-view {
-    display:flex;
-    width:45%;
-    overflow: scroll;
+    border:1px solid #AABBCC;
+    background-color: #DDEEFF;
+    width:23vw;
+    margin: 0px;
+    padding: 0px;
 }
 .json-view-inner {
-    min-width: 200px;
+    overflow: scroll;
+    width: 23vw;
+    height: 300px;
 }
-
-table {
-    width: 100%;
+.spacer {
+    width:auto;
 }

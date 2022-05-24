@@ -1,6 +1,6 @@
 import { register, login } from "../frontend/frontend.js";
 import uuid from "https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/esm-browser/v4.js";
-import jsnview from "https://cdn.jsdelivr.net/npm/jsnview@2.0.4/build/index.esm.js";
+import JSONFormatter from "https://cdn.jsdelivr.net/npm/json-formatter-js@2.3.4/dist/json-formatter.esm.js";
 import { functions } from "https://unpkg.com/fido2-lib@3.1.6/test/helpers/fido2-helpers.js?module";
 
 $("#button-register").click(async () => {
@@ -33,15 +33,10 @@ $("#button-login").click(async () => {
 });
 
 function showJson(jsonData) {
-	const options = {
-		showLen: false,
-		showType: false,
-		showBrackets: true,
-		showFoldmarker: false,
-		colors: { boolean: '#ff2929', null: '#ff2929', string: '#690', number: '#905', float: '#002f99' }
-	}
-	const treeView = jsnview(jsonData, options); // returns HTMLElement
-	return treeView;
+	const 
+		  jsonFormatterObj = new JSONFormatter(jsonData, 3),
+		  jsonFormatterElm = jsonFormatterObj.render();
+	return jsonFormatterElm;
 }
 
 // Only done to be able to show PublicKeyCredential in jsonFormatter. Never do this.
@@ -78,7 +73,7 @@ function doLog(target, description, sender, receiver, senderJson, receiverJson) 
 	let logEntryHTML = "";
 	logEntryHTML += "<table width='100%'><thead><tr><td colspan='3'>" + description + "</td></tr></thead>";
 	logEntryHTML += "<tbody><tr><td>"+sender+"</td><td>→</td><td>"+receiver+"</td></tr>";
-	logEntryHTML += "<tr><td class=\"json-view\"><div id=\"json-view-inner\"><pre><code id=\"request-"+randomId+"\"></code></pre></div></td><td>→</td><td class=\"json-view\"><div class=\"json-view-inner\"><pre><code id=\"response-"+randomId+"\"></code></pre></div></td></tr></tbody></table>";
+	logEntryHTML += "<tr><td class=\"json-view\"><div class=\"json-view-inner\"><pre><code id=\"request-"+randomId+"\"></code></pre></div></td><td>→</td><td class=\"json-view\"><div class=\"json-view-inner\"><pre><code id=\"response-"+randomId+"\"></code></pre></div></td></tr></tbody></table>";
 	$('#log-'+target).append(logEntryHTML);
 	$('#request-'+randomId).append(showJson(base64ify(unprotectKey(functions.cloneObject(senderJson)))));
 	$('#response-'+randomId).append(showJson(base64ify(unprotectKey(functions.cloneObject(receiverJson)))));

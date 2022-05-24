@@ -9,8 +9,8 @@ import { base64 } from "../backend/backend.js";
 const publicKeyCredentialToJSON = (pubKeyCred) => {
 	/* ----- DO NOT MODIFY THIS CODE ----- */
 	if(pubKeyCred instanceof Array) {
-		let arr = [];
-		for(let i of pubKeyCred)
+		const arr = [];
+		for(const i of pubKeyCred)
 			arr.push(publicKeyCredentialToJSON(i));
 
 		return arr;
@@ -21,9 +21,9 @@ const publicKeyCredentialToJSON = (pubKeyCred) => {
 	}
 
 	if(pubKeyCred instanceof Object) {
-		let obj = {};
+		const obj = {};
 
-		for (let key in pubKeyCred) {
+		for (const key in pubKeyCred) {
 			obj[key] = publicKeyCredentialToJSON(pubKeyCred[key]);
 		}
 
@@ -36,7 +36,7 @@ const publicKeyCredentialToJSON = (pubKeyCred) => {
 /**
  * Decodes arrayBuffer required fields.
  */
-let preformatMakeCredReq = (makeCredReq) => {
+const preformatMakeCredReq = (makeCredReq) => {
 	makeCredReq.challenge = base64.toArrayBuffer(makeCredReq.challenge,true);
 	makeCredReq.user.id = base64.toArrayBuffer(makeCredReq.user.id,true);
 

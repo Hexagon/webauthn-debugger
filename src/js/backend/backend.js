@@ -1,5 +1,6 @@
 import { } from "./browser-workaround.js";
-import { tools, Fido2Lib } from "https://cdn.jsdelivr.net/npm/fido2-lib@3/dist/main.js";
+import { tools, Fido2Lib } from "https://cdn.jsdelivr.net/npm/fido2-lib@3.1.7/dist/main.js";
+
 const { base64 } = tools;
 import { getConfig } from "../config.js";
 
@@ -87,7 +88,6 @@ const randomBase64URLBuffer = (len) => {
 };
 
 const backendRegister = async (ctx) => {
-    console.log(ctx);
 	if(!ctx || !ctx.username || !ctx.name) {
 		return {
 			"status": "failed",
@@ -95,7 +95,7 @@ const backendRegister = async (ctx) => {
 		};
 	}
 
-	let usernameClean = username.clean(ctx.username),
+	const usernameClean = username.clean(ctx.username),
 		name     = usernameClean;
 
 	if (!usernameClean) {
@@ -112,7 +112,7 @@ const backendRegister = async (ctx) => {
 		};
 	}
 
-	let id = randomBase64URLBuffer();
+	const id = randomBase64URLBuffer();
 
 	database.users[usernameClean] = {
 		"name": name,
@@ -130,7 +130,7 @@ const backendRegister = async (ctx) => {
 		90 * 1000 // 90 seconds
 	);
 
-	let challengeMakeCred = await f2l.registration(usernameClean, name, id);
+	const challengeMakeCred = await f2l.registration(usernameClean, name, id);
     
 	// Transfer challenge and username to session
 	session.set("challenge", challengeMakeCred.challenge);
@@ -156,7 +156,8 @@ const backendAdd = async (ctx) => {
 		};
 	}
 
-	let usernameClean = username.clean(session.get("username")),
+	const 
+		usernameClean = username.clean(session.get("username")),
 		name     = usernameClean,
 		id       = database.users[session.get("username")].id;
 
@@ -168,7 +169,7 @@ const backendAdd = async (ctx) => {
 		90 * 1000 // 90 seconds
 	);
 
-	let challengeMakeCred = await f2l.registration(usernameClean, name, id);
+	const challengeMakeCred = await f2l.registration(usernameClean, name, id);
     
 	// Transfer challenge to session
 	session.set("challenge", challengeMakeCred.challenge);
@@ -188,7 +189,7 @@ const backendLogin = async (ctx) => {
 		};
 	}
 
-	let usernameClean = username.clean(ctx.username);
+	const usernameClean = username.clean(ctx.username);
 
 	if(!database.users[usernameClean] || !database.users[usernameClean].registered) {
 		return {
@@ -205,7 +206,7 @@ const backendLogin = async (ctx) => {
 		90 * 1000 // 90 seconds
 	);
 
-	let assertionOptions = await f2l.login(usernameClean);
+	const assertionOptions = await f2l.login(usernameClean);
 
 	// Transfer challenge and username to session
 	session.set("challenge", assertionOptions.challenge);
@@ -213,8 +214,8 @@ const backendLogin = async (ctx) => {
 
 	// Pass this, to limit selectable credentials for user... This may be set in response instead, so that
 	// all of a users server (public) credentials isn't exposed to anyone
-	let allowCredentials = [];
-	for(let authr of database.users[session.get("username")].authenticators) {
+	const allowCredentials = [];
+	for(const authr of database.users[session.get("username")].authenticators) {
 		allowCredentials.push({
 			type: authr.type,
 			id: authr.credId,
@@ -255,7 +256,8 @@ const backendResponse = async (webauthnResp) => {
 			publicKey: result.authnrData.get("credentialPublicKeyPem"),
 			type: webauthnResp.type,
 			counter: result.authnrData.get("counter"),
-			created: new Date().getTime()
+			created: new Date().getTime(),
+			transports: webauthnResp.transports
 		};
 
 		database.users[session.get("username")].authenticators.push(token);
@@ -267,13 +269,16 @@ const backendResponse = async (webauthnResp) => {
 
 	} else if(webauthnResp.response.authenticatorData !== undefined) {
 		/* This is get assertion */
-		let validAuthenticators = database.users[session.get("username")].authenticators,
-			winningAuthenticator;            
-		for(let authrIdx in validAuthenticators) {
-			let authr = validAuthenticators[authrIdx];
-			//try {
+		const validAuthenticators = database.users[session.get("username")].authenticators;
+		let winningAuthenticator;
 
-				let assertionExpectations = {
+		webauthnResp.rawId = base64.toArrayBuffer(webauthnResp.rawId, true);
+		webauthnResp.response.userHandle = webauthnResp.rawId;
+		for(const authrIdx in validAuthenticators) {
+			const authr = validAuthenticators[authrIdx];
+			try {
+
+				const assertionExpectations = {
 					// Remove the following comment if allowCredentials has been added into authnOptions so the credential received will be validate against allowCredentials array.
 					allowCredentials: session.get("allowCredentials"),
 					challenge: session.get("challenge"),
@@ -284,24 +289,26 @@ const backendResponse = async (webauthnResp) => {
 					userHandle: authr.credId
 				};
 
-				let result = await f2l.assertion(webauthnResp, assertionExpectations);
+				const result = await f2l.assertion(webauthnResp, assertionExpectations);
 
 				winningAuthenticator = result;
-				if (database.users[session.get("username")].authenticators[authrIdx]) {
+				if (database.users[session.get("username")].authenticators) {
 					database.users[session.get("username")].authenticators[authrIdx].counter = result.authnrData.get("counter");
 				}                    
 				break;
         
-			//} catch (e) {
+			} catch (_e) {
 				// Ignore
-			//}
+				// console.log(e);
+			}
 		}
+
 		// authentication complete!
 		if (winningAuthenticator && database.users[session.get("username")].registered ) {
 			session.set("loggedIn", true);
 			return { "status": "ok" };
 
-			// Authentication failed
+		// Authentication failed
 		} else {
 			return {
 				"status": "failed",

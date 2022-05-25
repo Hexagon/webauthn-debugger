@@ -91,3 +91,14 @@ textarea {
 .spacer {
     width:auto;
 }
+
+.title {
+    margin-left:60px;
+    margin-top:15px;
+}
+.using {
+    font-size: 1.5rem;
+}
+.using * {
+    font-size: 1.5rem;
+}

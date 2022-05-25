@@ -1,8 +1,7 @@
 import { } from "./browser-workaround.js";
 import { tools, Fido2Lib } from "https://cdn.jsdelivr.net/npm/fido2-lib@3.1.7/dist/main.js";
-
 const { base64 } = tools;
-import { getConfig } from "../config.js";
+import { getConfig } from "./config.js";
 
 const session = new Map();
 const database = {
@@ -323,59 +322,4 @@ const backendResponse = async (webauthnResp) => {
 	}
 };
 
-
-const isLoggedIn = () => {
-	const loggedIn = session.get("loggedIn");
-	if(!loggedIn) {
-		return {
-			"status": "failed"
-		};
-	} else {
-		return {
-			"status": "ok"
-		};
-	}
-};
-
-const logout = () => {
-
-	session.set("loggedIn",false);
-	session.set("username",undefined);
-	return {
-		"status": "ok"
-	};
-};
-
-const personalInfo = () => {
-	const loggedIn = session.get("loggedIn")
-	if(!loggedIn) {
-		return {
-			"status": "failed",
-			"message": "Access denied"
-		};
-	} else {
-		const username = session.get("username");
-		let tokenInfo = undefined;
-		const userInfo = database.users[username];
-		if (userInfo.oneTimeToken) {            
-			if (userInfo.oneTimeToken.expires > new Date().getTime()) {
-				tokenInfo = { 
-					token: token.encode(userInfo.oneTimeToken.token),
-					expires: userInfo.oneTimeToken.expires 
-				};
-			} else {
-				tokenInfo = undefined;
-				userInfo.oneTimeToken = undefined;
-			}
-		}
-		return {
-			"status": "ok",
-			"authenticators": userInfo.authenticators,
-			"name": userInfo.name,
-			"oneTimeToken": tokenInfo,
-			"recoveryEmail": userInfo.recoveryEmail
-		};
-	}
-};
-
-export { backendAdd, backendRegister, backendLogin, backendResponse, isLoggedIn, logout, personalInfo, base64 };
+export { backendAdd, backendRegister, backendLogin, backendResponse, base64 };

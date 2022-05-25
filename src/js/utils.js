@@ -1,5 +1,5 @@
 
-import { base64 } from "../backend/backend.js";
+import { base64 } from "./backend.js";
 
 /**
  * Converts PublicKeyCredential into serialised JSON

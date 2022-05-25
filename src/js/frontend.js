@@ -1,8 +1,6 @@
-/* global base64, loadMainContainer,  */
-import { base64 } from "../backend/backend.js";
 import { preformatMakeCredReq, publicKeyCredentialToJSON } from  "./utils.js";
-import { backendAdd, backendLogin, backendRegister, backendResponse } from "../backend/backend.js";
-import { doLog } from "../view/view.js";
+import { backendAdd, backendLogin, backendRegister, backendResponse, base64 } from "./backend.js";
+import { doLog } from "./view.js";
 
 /* Handle for register form submission */
 async function register (username, additional) {

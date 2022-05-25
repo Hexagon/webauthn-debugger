@@ -5,7 +5,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" integrity="sha512-EZLkOqwILORob+p0BXZc+Vm3RgJBOe1Iq/0fiI7r/wJgzOFZMlsqTa29UEl6v6U6gsV4uIpsNZoV32YZqrCRCQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/json-formatter-js@2.3.4/dist/json-formatter.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsnview/build/index.esm.css" />
         <link rel="stylesheet" href="css/demo.css">
     </head>
     <body>
@@ -29,7 +28,7 @@
     "origin": "http://localhost:3000",
     "rpiId": "localhost",
     "rpName": "Webauthn Debugger",
-    "attestation": "none",
+    "attestation": "direct",
     "cryptoParams": [-7, -257],
     "authenticatorRequireResidentKey": false,
     "authenticatorUserVerification": "preferred"
@@ -59,11 +58,9 @@
 
         <!-- External dependencies -->
         <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@hexagon/base64@1/dist/base64.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/qr-creator/dist/qr-creator.min.js"></script>
 
         <!-- Internals -->
-        <script src="js/view/view.js" type="module"></script>
+        <script src="js/view.js" type="module"></script>
 
 </body>
 </html>

@@ -1,5 +1,5 @@
 import { } from "./browser-workaround.js";
-import { tools, Fido2Lib } from "https://cdn.jsdelivr.net/npm/fido2-lib@3.2.0/dist/main.js";
+import { tools, Fido2Lib } from "https://cdn.jsdelivr.net/npm/fido2-lib@3.2.2/dist/main.js";
 const { base64 } = tools;
 import { getConfig } from "./config.js";
 

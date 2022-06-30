@@ -1,5 +1,12 @@
 {
-    "tasks": {
-        "start": "deno run --allow-read --allow-net --no-check ./app.ts"
+  "tasks": {
+    "start": "deno run --allow-read --allow-net --no-check ./app.ts"
+  },
+  "fmt": {
+    "files": {
+      "exclude": [
+        "src/js"
+      ]
     }
+  }
 }

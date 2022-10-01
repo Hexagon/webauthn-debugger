@@ -2,7 +2,7 @@ import { register, login } from "./frontend.js";
 import { base64 } from "./backend.js";
 import uuid from "https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/esm-browser/v4.js";
 import JSONFormatter from "https://cdn.jsdelivr.net/npm/json-formatter-js@2.3.4/dist/json-formatter.esm.js";
-import { functions } from "https://unpkg.com/fido2-lib@3.1.6/test/helpers/fido2-helpers.js?module";
+import { functions } from "https://unpkg.com/fido2-lib@3.3.3/test/helpers/fido2-helpers.js?module";
 
 $("#button-register").click(async () => {
 	$("#log-assertion").html('');

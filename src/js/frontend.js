@@ -1,5 +1,6 @@
 import { preformatMakeCredReq, publicKeyCredentialToJSON } from  "./utils.js";
 import { backendAdd, backendLogin, backendRegister, backendResponse, base64 } from "./backend.js";
+import { parseAttestationObject, parseClientResponse } from "https://cdn.jsdelivr.net/npm/fido2-lib@3.3.3/dist/main.js";
 import { doLog } from "./view.js";
 
 /* Handle for register form submission */
@@ -26,7 +27,18 @@ async function register (username, additional) {
 
 	// Step 3 - Run getTransports if it is supported
 	if (credentialsCreateResponse.response && credentialsCreateResponse.response.getTransports) {
-		credentialsCreateResponse.transports = credentialsCreateResponse.response.getTransports();
+		credentialsCreateResponse.response.debugTransports = credentialsCreateResponse.response.getTransports();
+	}
+
+	// Step 3.1 - Run getTransports if it is supported
+	if (credentialsCreateResponse.response && credentialsCreateResponse.response.getAuthenticatorData) {
+		credentialsCreateResponse.response.debugAuthenticatorData = credentialsCreateResponse.response.getAuthenticatorData();
+	}
+
+	// Step 3.2 Decode attestation object
+	if (credentialsCreateResponse.response && credentialsCreateResponse.response.attestationObject) {
+		const decodedAttestationObject = await parseAttestationObject(credentialsCreateResponse.response.attestationObject);
+		credentialsCreateResponse.response.debugAttestationObject = Object.fromEntries(decodedAttestationObject);
 	}
 
 	// Step 4 - Pass response from credentials.create to "backend"

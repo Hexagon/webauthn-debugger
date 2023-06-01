@@ -4,9 +4,6 @@ const { base64 } = tools;
 import { getConfig } from "./config.js";
 
 const session = new Map();
-const database = {
-    users: {}
-};
 
 class Fido2 {
 
@@ -27,14 +24,15 @@ class Fido2 {
 		});
 	}
 
-	async registration(username, displayName, id) {
+	async registration(id) {
 		const registrationOptions = await this.f2l.attestationOptions();
 		
 		// make sure to add registrationOptions.user.id
 		registrationOptions.user = {
 			id: id,
-			name: username,
-			displayName: displayName
+			name: `User created at (${new Date().toLocaleString()})`,
+			displayName: `User created at (${new Date().toLocaleString()})`
+			
 		};
 
 		registrationOptions.status = "ok";
@@ -67,13 +65,6 @@ class Fido2 {
 	}
 }
 
-// Clean username
-const username = { clean: function (username) {
-	let usernameClean = username.replace(/[^a-z0-9\-_]/gi,"");
-	usernameClean = usernameClean.toLowerCase();
-	return usernameClean;
-}};
-
 /**
  * Returns base64url encoded buffer of the given length
  * @param  {Number} len - length of the buffer
@@ -86,41 +77,9 @@ const randomBase64URLBuffer = (len) => {
 	return base64.fromArrayBuffer(randomBytes, true);
 };
 
-const backendRegister = async (ctx) => {
-	if(!ctx || !ctx.username || !ctx.name) {
-		return {
-			"status": "failed",
-			"message": "ctx missing name or username field!"
-		};
-	}
-
-	const usernameClean = username.clean(ctx.username),
-		name     = usernameClean;
-
-	if (!usernameClean) {
-		return {
-			"status": "failed",
-			"message": "Invalid username!"
-		};
-	}
-
-	if(database.users[usernameClean] && database.users[usernameClean].registered) {
-		return {
-			"status": "failed",
-			"message": `Username ${usernameClean} already exists`
-		};
-	}
+const backendRegister = async () => {
 
 	const id = randomBase64URLBuffer();
-
-	database.users[usernameClean] = {
-		"name": name,
-		"registered": false,
-		"id": id,
-		"authenticators": [],
-		"oneTimeToken": undefined,
-		"recoveryEmail": undefined
-	};
 
 	const f2l = new Fido2(
 		getConfig().rpId, 
@@ -129,24 +88,17 @@ const backendRegister = async (ctx) => {
 		90 * 1000 // 90 seconds
 	);
 
-	const challengeMakeCred = await f2l.registration(usernameClean, name, id);
+	const challengeMakeCred = await f2l.registration(id);
     
-	// Transfer challenge and username to session
+	// Transfer challenge to session
 	session.set("challenge", challengeMakeCred.challenge);
-	session.set("username", usernameClean);
 
 	// Respond with credentials
 	return challengeMakeCred;
 };
 
 
-const backendAdd = async (ctx) => {
-	if(!ctx) {
-		return {
-			"status": "failed",
-			"message": "ctx missing name or username field!"
-		};
-	}
+const backendAdd = async () => {
 
 	if(!session.get("loggedIn")) {
 		return {
@@ -154,12 +106,6 @@ const backendAdd = async (ctx) => {
 			"message": "User not logged in!"
 		};
 	}
-
-	const 
-		usernameClean = username.clean(session.get("username")),
-		name     = usernameClean,
-		id       = database.users[session.get("username")].id;
-
 		
 	const f2l = new Fido2(
 		getConfig().rpId, 
@@ -168,36 +114,17 @@ const backendAdd = async (ctx) => {
 		90 * 1000 // 90 seconds
 	);
 
-	const challengeMakeCred = await f2l.registration(usernameClean, name, id);
+	const challengeMakeCred = await f2l.registration(id);
     
 	// Transfer challenge to session
 	session.set("challenge", challengeMakeCred.challenge);
-
-	// Exclude existing credentials
-	challengeMakeCred.excludeCredentials = database.users[session.get("username")].authenticators.map((e) => { return { id: base64.fromArrayBuffer(e.credId, true), type: e.type }; });
 
 	// Respond with credentials
 	return challengeMakeCred;
 };
 
-const backendLogin = async (ctx) => {
-	if(!ctx || !ctx.username) {
-		return {
-			"status": "failed",
-			"message": "ctx missing username field!"
-		};
-	}
+const backendLogin = async () => {
 
-	const usernameClean = username.clean(ctx.username);
-
-	if(!database.users[usernameClean] || !database.users[usernameClean].registered) {
-		return {
-			"status": "failed",
-			"message": `User ${usernameClean} does not exist!`
-		};
-	}
-
-	
 	const f2l = new Fido2(
 		getConfig().rpId, 
 		getConfig().rpName, 
@@ -205,26 +132,10 @@ const backendLogin = async (ctx) => {
 		90 * 1000 // 90 seconds
 	);
 
-	const assertionOptions = await f2l.login(usernameClean);
+	const assertionOptions = await f2l.login();
 
-	// Transfer challenge and username to session
+	// Transfer challenge to session
 	session.set("challenge", assertionOptions.challenge);
-	session.set("username", usernameClean);
-
-	// Pass this, to limit selectable credentials for user... This may be set in response instead, so that
-	// all of a users server (public) credentials isn't exposed to anyone
-	const allowCredentials = [];
-	for(const authr of database.users[session.get("username")].authenticators) {
-		allowCredentials.push({
-			type: authr.type,
-			id: authr.credId,
-			transports: authr.transports
-		});
-	}
-
-	assertionOptions.allowCredentials = allowCredentials;
-
-	session.set("allowCredentials", allowCredentials);
 
 	return assertionOptions;
 };
@@ -249,61 +160,30 @@ const backendResponse = async (webauthnResp) => {
 	if(webauthnResp.response.attestationObject !== undefined) {
 		/* This is create cred */
 		const result = await f2l.attestation(webauthnResp, getConfig().origin, session.get("challenge"));
-        
-		const token = {
-			credId: result.authnrData.get("credId"),
-			publicKey: result.authnrData.get("credentialPublicKeyPem"),
-			type: webauthnResp.type,
-			counter: result.authnrData.get("counter"),
-			created: new Date().getTime(),
-			transports: webauthnResp.transports
-		};
-
-		database.users[session.get("username")].authenticators.push(token);
-		database.users[session.get("username")].registered = true;
-
+		console.log(result);
 		session.set("loggedIn", true);
 
 		return { "status": "ok" };
 
 	} else if(webauthnResp.response.authenticatorData !== undefined) {
-		/* This is get assertion */
-		const validAuthenticators = database.users[session.get("username")].authenticators;
-		let winningAuthenticator;
-
 		webauthnResp.rawId = base64.toArrayBuffer(webauthnResp.rawId, true);
 		webauthnResp.response.userHandle = webauthnResp.rawId;
-		for(const authrIdx in validAuthenticators) {
-			const authr = validAuthenticators[authrIdx];
-			try {
+		webauthnResp.response.clientDataJSON = base64.toString(webauthnResp.response.clientDataJSON, true);
 
+		
 				const assertionExpectations = {
 					// Remove the following comment if allowCredentials has been added into authnOptions so the credential received will be validate against allowCredentials array.
-					allowCredentials: session.get("allowCredentials"),
 					challenge: session.get("challenge"),
 					origin: getConfig().origin,
 					factor: "either",
-					publicKey: authr.publicKey,
-					prevCounter: authr.counter,
-					userHandle: authr.credId
+					prevCounter: 0
 				};
 
 				const result = await f2l.assertion(webauthnResp, assertionExpectations);
 
-				winningAuthenticator = result;
-				if (database.users[session.get("username")].authenticators) {
-					database.users[session.get("username")].authenticators[authrIdx].counter = result.authnrData.get("counter");
-				}                    
-				break;
-        
-			} catch (_e) {
-				// Ignore
-				// console.log(e);
-			}
-		}
-
+		
 		// authentication complete!
-		if (winningAuthenticator && database.users[session.get("username")].registered ) {
+		if (result) {
 			session.set("loggedIn", true);
 			return { "status": "ok" };
 

@@ -6,30 +6,20 @@ import { functions } from "fido2/test/helpers/fido2-helpers.js";
 $("#button-register").click(async () => {
 	$("#log-assertion").html('');
 	$("#log-registration").html('');
-	try {
-		const username = $("#username")[0].value;
-		if(!username) {
-			alert("Username is missing!");
-		} else {
-			await register(username);
-		}
-	} catch(e) {
-		alert(e);
-	}
+	//try {
+		await register();
+	//} catch(e) {
+	//	alert(e);
+	//}
 });
 
 $("#button-login").click(async () => {   
-	try {
+	//try {
 		$("#log-assertion").html('');
-		const username = $("#username")[0].value;
-		if(!username) {
-			alert("Username is missing!");
-		} else {
-			await login(username);
-		}
-	} catch(e) {
+		await login();
+	//} catch(e) {
 		alert(e);
-	}
+	//}
 });
 
 function showJson(jsonData) {

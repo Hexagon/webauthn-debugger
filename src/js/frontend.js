@@ -4,20 +4,17 @@ import { parseAttestationObject, parseClientResponse } from "https://cdn.jsdeliv
 import { doLog } from "./view.js";
 
 /* Handle for register form submission */
-async function register (username, additional) {
+async function register (additional) {
     
-	// Username and name is the same in our example
-	const name = username;
-
 	// Step 1 - Prepare publicKeyCredentialCreationOptions
-	console.log("Registration Step 1 - Request publicKeyCredentialCreationOptions for user: ", username);
-	const publicKeyCredentialCreationOptions = additional ? await backendAdd({username, name}) : await backendRegister({username, name});
+	console.log("Registration Step 1 - Request publicKeyCredentialCreationOptions for user ");
+	const publicKeyCredentialCreationOptions = additional ? await backendAdd() : await backendRegister();
 	if(publicKeyCredentialCreationOptions.status !== "ok")
 		throw new Error(`Server responed with error. The message is: ${publicKeyCredentialCreationOptions.message}`);
 
 	const publicKey = preformatMakeCredReq(publicKeyCredentialCreationOptions);
 
-	doLog("registration", "Request credentials create options", "Browser", "RP", username, publicKey);
+	doLog("registration", "Request credentials create options", "Browser", "RP", "userhandle", publicKey);
 
 	// Step 2 - Request credentials from browser
 	console.log("Registration Step 2 - Request credential, navigator.credentials.create({ publicKey: publicKeyCredentialCreationOptions }), publicKeyCredentialCreationOptions = ", publicKey);
@@ -56,16 +53,16 @@ async function register (username, additional) {
 }
 
 /* Handler for login form submission */
-async function login(username) {
+async function login() {
 
-	// Step 1 - Get assertionOptions for username from "backend"
-	console.log("Assertion Step 1 - backendLogin(username): username = ", username);
+	// Step 1 - Get assertionOptions from "backend"
+	console.log("Assertion Step 1 - backendLogin ");
 
-	const assertionOptions = await backendLogin({ username: username });	
+	const assertionOptions = await backendLogin();	
 	if(assertionOptions.status !== "ok")
 		throw new Error(`Server responed with error. The message is: ${assertionOptions.message}`);
 		
-	doLog("assertion", "Get assertion options for user", "Browser", "RP", { username: username }, assertionOptions);
+	doLog("assertion", "Get assertion options for user", "Browser", "RP", "userhandle", assertionOptions);
 
 	assertionOptions.challenge = base64.toArrayBuffer(assertionOptions.challenge, true);
 
